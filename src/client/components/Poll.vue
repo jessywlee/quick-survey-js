@@ -61,6 +61,9 @@
 </template>
 
 <script>
+// TODO: event 문서에 명시하기
+// TODO: headers도 userKey prop을 이용해 만들기
+// TODO: getResonseData vue스럽게 바꾸기
 import { USER_POLL_API, SURVEY_ID, USER_KEY } from "../config";
 import PollInfo from "./UserView/PollInfo";
 import PollQuestion from "./UserView/PollQuestion";
@@ -143,15 +146,17 @@ export default {
         .post(`${USER_POLL_API}/${this.surveyId}`, this.ResponsesData, {
           headers: headers,
         })
-        .then((res) =>
-          res.response.data.message === "success"
-            ? this.$router.push(`/poll/results/${this.surveyId}`)
-            : console.log(res)
-        )
+        .then((res) => {
+          if (res.response.data.message === "success") {
+            this.$emit("vote-success", {
+              surveyId: this.surveyId,
+              response: res,
+            });
+          }
+        })
         .catch((err) => {
           if (err.response.data.message === "already voted") {
-            alert("이미 참여한 투표입니다.");
-            this.$router.push(`/poll/results/${this.surveyId}`);
+            this.$emit("already-voted", this.surveyId);
           }
         });
     },
@@ -163,15 +168,17 @@ export default {
       };
 
       axios
-        .post(`${USER_POLL_API}/${SURVEY_ID}`, body, {
+        .post(`${USER_POLL_API}/${this.surveyId}`, body, {
           headers: headers,
         })
-        .then((res) =>
-          res.response.data.message === "success"
-            ? this.$router.push(`/poll/results/${SURVEY_ID}`)
-            : console.log(res)
-        )
+        .then((res) => {
+          if (res.response.data.message === "success") {
+            this.$emit("poll-closed", this.surveyId);
+          }
+        })
         .catch((err) => {
+          // TODO: 실패 이벤트도 적용하기
+          // this.$emit("failed-to-close-poll", this.surveyId);
           console.log(err);
         });
     },
