@@ -8,7 +8,7 @@
     }"
   >
     <div
-      :class="{ withResult: showResult, fillMostSelected: isMostSelected }"
+      :class="{ withResult: showResult }"
       :style="showResult ? fillResult : null"
     >
       <li class="choiceBox">
@@ -78,9 +78,20 @@ export default {
       if (this.choiceCount === 0) {
         return { width: "0%" };
       } else {
-        return {
-          width: `${((this.choiceCount / this.totalCount) * 100).toFixed(0)}%`,
-        };
+        if (this.isMostSelected) {
+          return {
+            width: `${((this.choiceCount / this.totalCount) * 100).toFixed(
+              0
+            )}%`,
+            "background-color": "#e6eef8",
+          };
+        } else {
+          return {
+            width: `${((this.choiceCount / this.totalCount) * 100).toFixed(
+              0
+            )}%`,
+          };
+        }
       }
     },
     getResult() {
@@ -109,7 +120,7 @@ export default {
 
   &.blueBorder {
     border: 1px solid rgb(50, 129, 213);
-    background-color: #e6eef8;
+    // background-color: #e6eef8;
   }
 
   .choiceBox {
@@ -132,7 +143,6 @@ export default {
     padding: 0px 10px;
     background-color: #ddd;
   }
-
   .fillMostSelected {
     background-color: #e6eef8;
   }

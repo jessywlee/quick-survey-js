@@ -18,12 +18,13 @@
       <div class="typeCheckbox">
         <v-checkbox
           v-model="pollType"
-          class="checkbox"
+          class="typeBox checkbox"
           @click="handlePollType(true, 'checkbox')"
           :label="`객관식`"
         ></v-checkbox>
         <v-checkbox
           :value="!pollType"
+          class="typeBox"
           @click="handlePollType(false, 'rating')"
           :label="`스케일`"
         ></v-checkbox>
@@ -184,6 +185,9 @@ export default {
   .pollTypes {
     .typeCheckbox {
       display: flex;
+    }
+    .typeBox {
+      margin-top: 0;
     }
     .checkbox {
       margin-right: 20px;

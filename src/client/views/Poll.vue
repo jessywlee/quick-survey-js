@@ -1,70 +1,73 @@
 <template>
-  <form @submit.prevent class="pollContainer">
-    <div class="closedPoll" v-if="isClosed">
-      <h3>종료된 투표입니다.</h3>
-    </div>
-    <div v-if="pollData" class="pollPage">
-      <PollInfo
-        :pollId="pollData._id"
-        :totalCount="pollData.responseCount"
-        :expiryDate="pollData.closeAt"
-        :hasExpiry="pollData.hasExpiry"
+  <v-app>
+    <form @submit.prevent class="pollContainer">
+      <div class="closedPoll" v-if="isClosed">
+        <h3>종료된 투표입니다.</h3>
+      </div>
+      <div v-if="pollData" class="pollPage">
+        <PollInfo
+          :pollId="pollData._id"
+          :totalCount="pollData.responseCount"
+          :expiryDate="pollData.closeAt"
+          :hasExpiry="pollData.hasExpiry"
+        />
+        <PollQuestion
+          v-for="page in pages"
+          :key="page._id"
+          :page="page"
+          :totalCount="pollData.responseCount"
+          :showResult="showResult"
+          :getResponsesData="getResponsesData"
+        />
+      </div>
+      <FinalButton
+        :isAdmin="false"
+        finalButtonText="투표하기"
+        :readyToSubmit="readyToSubmit"
+        @submitResponsesData="submitResponsesData"
       />
-      <PollQuestion
-        v-for="page in pages"
-        :key="page._id"
-        :page="page"
-        :totalCount="pollData.responseCount"
-        :showResult="showResult"
-        :getResponsesData="getResponsesData"
-      />
-    </div>
-    <FinalButton
-      :isAdmin="false"
-      finalButtonText="투표하기"
-      :readyToSubmit="readyToSubmit"
-      @submitResponsesData="submitResponsesData"
-    />
-    <div class="text-center">
-      <v-dialog v-model="dialog" width="500">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            v-if="isAdmin"
-            depressed
-            small
-            outlined
-            class="closeButton"
-            color="red lighten-2"
-            dark
-            v-bind="attrs"
-            v-on="on"
-          >
-            투표 종료하기
-          </v-btn>
-        </template>
+      <div class="text-center">
+        <v-dialog v-model="dialog" width="500">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-if="isAdmin"
+              depressed
+              small
+              outlined
+              class="closeButton"
+              color="red lighten-2"
+              dark
+              v-bind="attrs"
+              v-on="on"
+            >
+              투표 종료하기
+            </v-btn>
+          </template>
 
-        <v-card>
-          <v-card-title class="headline grey lighten-2">
-            투표를 완전히 종료하시겠습니까?
-          </v-card-title>
-          <v-card-text> 확인을 누르면 투표가 종료됩니다. </v-card-text>
-          <v-divider></v-divider>
+          <v-card>
+            <v-card-title class="headline grey lighten-2">
+              투표를 완전히 종료하시겠습니까?
+            </v-card-title>
+            <v-card-text> 확인을 누르면 투표가 종료됩니다. </v-card-text>
+            <v-divider></v-divider>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" text @click="closePoll"> 확인 </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </div>
-  </form>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="primary" text @click="closePoll"> 확인 </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+    </form>
+  </v-app>
 </template>
 
 <script>
-import { USER_POLL_API, SURVEY_ID, USER_KEY } from "../config";
+import { ADMIN_POLL_API, USER_POLL_API, SURVEY_ID, USER_KEY } from "../config";
 import PollInfo from "../components/UserView/PollInfo";
 import PollQuestion from "../components/UserView/PollQuestion";
 import FinalButton from "../components/FinalButton";
+import vuetify from "../plugins/vuetify";
 const axios = require("axios");
 const headers = {
   Authorization: USER_KEY,
@@ -72,7 +75,12 @@ const headers = {
 
 export default {
   name: "Poll",
-  components: { PollInfo, PollQuestion, FinalButton },
+  vuetify,
+  components: {
+    PollInfo,
+    PollQuestion,
+    FinalButton,
+  },
   props: {
     surveyId: {
       type: String,
@@ -163,12 +171,12 @@ export default {
       };
 
       axios
-        .post(`${USER_POLL_API}/${SURVEY_ID}`, body, {
+        .patch(`${ADMIN_POLL_API}/${SURVEY_ID}/status`, body, {
           headers: headers,
         })
         .then((res) =>
           res.response.data.message === "success"
-            ? this.$router.push(`/poll/results/${SURVEY_ID}`)
+            ? this.$router.push(`/poll/${SURVEY_ID}`)
             : console.log(res)
         )
         .catch((err) => {
@@ -182,6 +190,7 @@ export default {
 <style lang="scss" scoped>
 .pollContainer {
   position: relative;
+  width: 100%;
   max-width: 600px;
   margin: 50px auto;
   padding: 10px;
