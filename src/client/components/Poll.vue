@@ -62,9 +62,9 @@
 
 <script>
 import { USER_POLL_API, SURVEY_ID, USER_KEY } from "../config";
-import PollInfo from "../components/UserView/PollInfo";
-import PollQuestion from "../components/UserView/PollQuestion";
-import FinalButton from "../components/FinalButton";
+import PollInfo from "./UserView/PollInfo";
+import PollQuestion from "./UserView/PollQuestion";
+import FinalButton from "./FinalButton";
 const axios = require("axios");
 const headers = {
   Authorization: USER_KEY,

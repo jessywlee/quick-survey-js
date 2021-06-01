@@ -43,9 +43,9 @@
   </form>
 </template>
 <script>
-import { ADMIN_POLL_API, TOKEN } from "../config";
-import PollPage from "../components/AdminView/PollPage";
-import FinalButton from "../components/FinalButton";
+import { ADMIN_POLL_API, USER_KEY } from "../config";
+import PollPage from "./AdminView/PollPage";
+import FinalButton from "./FinalButton";
 
 const axios = require("axios");
 
@@ -54,6 +54,11 @@ export default {
   components: {
     PollPage,
     FinalButton,
+  },
+  props: {
+    onSubmit: {
+      type: Function,
+    },
   },
   data() {
     return {
@@ -84,14 +89,19 @@ export default {
   },
   computed: {
     readyToCreate() {
-      return (
-        this.createPoll.pages[0].elements[0].title !== "" &&
-        this.createPoll.pages[0].elements[0].choices.length >= 2
-      );
-      // this.createPoll.pages.every((page) => {
-      //   page.elements.some((el) => el.title !== "" && el.choices.length >= 2);
-      //   page.elements[0].title !== "" && page.elements[0].choices.length >= 2;
-      // });
+      const titlesAreValid = this.createPoll.pages.every((page) => {
+        return page.elements.every((element) => {
+          return element.title !== "";
+        });
+      });
+
+      const choicesAreValid = this.createPoll.pages.every((page) => {
+        return page.elements.every((element) => {
+          return element.choices.length >= 2;
+        });
+      });
+
+      return titlesAreValid && choicesAreValid;
     },
   },
   methods: {
@@ -114,7 +124,7 @@ export default {
     },
     sendPollData() {
       const headers = {
-        Authorization: TOKEN,
+        Authorization: USER_KEY,
       };
 
       axios
@@ -125,6 +135,8 @@ export default {
           return console.log(res);
         })
         .catch((err) => console.log(err));
+
+      this.$emit("poll-created", this.createPoll);
     },
   },
 };
