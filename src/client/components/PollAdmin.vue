@@ -43,6 +43,8 @@
   </form>
 </template>
 <script>
+// TODO: apiEndpoint, userKey를 prop으로 받을 수 있게하기
+// TODO: poll-created, failed-to-create-poll 2개의 event를 문서에서 명시해주기
 import { ADMIN_POLL_API, USER_KEY } from "../config";
 import PollPage from "./AdminView/PollPage";
 import FinalButton from "./FinalButton";
@@ -54,11 +56,6 @@ export default {
   components: {
     PollPage,
     FinalButton,
-  },
-  props: {
-    onSubmit: {
-      type: Function,
-    },
   },
   data() {
     return {
@@ -131,12 +128,12 @@ export default {
         .post(ADMIN_POLL_API, this.createPoll, {
           headers: headers,
         })
-        .then((res) => {
-          return console.log(res);
+        .then(() => {
+          this.$emit("poll-created", this.createPoll);
         })
-        .catch((err) => console.log(err));
-
-      this.$emit("poll-created", this.createPoll);
+        .catch(() => {
+          this.$emit("failed-to-create-poll");
+        });
     },
   },
 };
